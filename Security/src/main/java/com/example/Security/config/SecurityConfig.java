@@ -3,9 +3,11 @@ package com.example.Security.config;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.CsrfConfigurer;
@@ -30,7 +32,10 @@ public class SecurityConfig {
 
 //        Enabling Auth Access
         httpSecurity.csrf(customizer -> customizer.disable()); // Disabling CSRF Tokens
-        httpSecurity.authorizeHttpRequests(request -> request.anyRequest().authenticated());
+        httpSecurity.authorizeHttpRequests(request -> request
+                .requestMatchers("register","login")
+                .permitAll()
+                .anyRequest().authenticated());
 
 //        httpSecurity.formLogin(Customizer.withDefaults()); //For WebBrowser
         httpSecurity.httpBasic(Customizer.withDefaults()); //For REST APIs
@@ -78,5 +83,10 @@ public class SecurityConfig {
         provider.setPasswordEncoder(new BCryptPasswordEncoder(12));
         provider.setUserDetailsService(userDetailsService);
         return provider;
+    }
+
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception{
+        return config.getAuthenticationManager();
     }
 }
